@@ -1,0 +1,146 @@
+version: "2.0.0@{{ current_wf_version }}"
+name:    "{{ project_name }}"
+
+# Config the docker compose data.
+docker_compose:
+    # Docker Compose yaml configuration. You mustn't use the version parameter, it will be automatically.
+    extension:
+        # Example:
+        services:
+            engine:
+#                # @todo Az alábbit beleírni a README.md-be, hogy legyen erről is példa
+#                image: {{ project_name }}
+#                build:
+#                    context: '%wf.project_path%/.docker/engine'
+#                    dockerfile: Dockerfile
+                environment:
+                    PHP_MAX_EXECUTION_TIME:  60
+                    PHP_MEMORY_LIMIT:        256M
+                    PHP_MAX_UPLOAD:          100M
+                    PHP_MAX_FILE_UPLOADS:    10
+                    PHP_MAX_POST:            100M
+                    SYMFONY_TRUSTED_PROXIES: 127.0.0.1,172.16.0.0/12,192.168.0.0/16
+
+#            elasticsearch:
+#                image: elasticsearch:1.7.6
+
+# You can add extra commands.
+commands:
+    init:
+        - mkdir -p .wf/.data/mysql
+#        - mkdir -p .wf/.data/elasticsearch
+        - echo "<info>✔ Edit the new files before run the <fg=blue;options=bold>install</> command:</info>"
+        - '[[ ! -f ".wf.yml" ]] && cp .wf.yml.dist .wf.yml'
+        - echo "   - <comment>.wf.yml</comment>"
+        # Uncomment if you are using custom Dockerfile
+#        - cp .docker/engine/Dockerfile.dist .docker/engine/Dockerfile
+#        - echo "   - <comment>.docker/engine/Dockerfile</comment>"
+
+    install:
+        - wf composer install
+        - wf dbreload ${1}
+{% if sf_version < 4 %}
+#        - wf exec engine npm install
+#        - wf exec engine gulp build
+#        - wf sf assets:install --symlink
+#        - wf sf assetic:dump
+{% endif %}
+        - echo "<info>✔ Now you can use the project!</info>"
+
+    dbreload:
+        - wf up
+        - if [ "${1}" == "--full" ]; then wf sf doctrine:database:drop --if-exists --force; fi
+        - wf sf doctrine:database:create --if-not-exists
+{% if is_ez %}
+        # 'ezsystems/ezplatform-ee' => 'studio-clean',
+        # 'ezsystems/ezplatform-ee-demo' => 'demo',
+        # 'ezsystems/ezplatform' => 'clean',
+        # 'ezsystems/ezplatform-demo' => 'platform-demo',
+#        - wf sf ezplatform:install [studio-clean|demo|clean|platform-demo]
+        # Ha van telepítve doctrine:schema:validate és van is mit validálni (vannak ez táblán kívüli táblák)
+#        - wf sf doctrine:schema:validate --skip-mapping || wf sf ezplatform:install [studio-clean|demo|clean|platform-demo]
+{% endif %}
+        - wf sf doctrine:migrations:migrate -n --allow-no-migration
+        # Did you install the doctrine fixture bundle?
+#        - if [ "${1}" == "--full" ]; then wf sf doctrine:fixtures:load -n; fi
+{% if is_ez %}
+        # A -u azért kell, hogy ne transaction-ben fusson, különben nem működnek a references dolgok
+#        - wf sf kaliop:migration:migrate -n -u --default-language=hun-HU
+{% endif %}
+
+    reinstall:
+        - wf sf doctrine:database:drop --if-exists --force
+        - wf install
+
+    fast_test:
+        - wf php {{ sf_bin_dir }}/php-cs-fixer fix --config=.php_cs.dist
+        - wf php {{ sf_bin_dir }}/phpunit -c app
+        - wf sf doctrine:mapping:info
+        - wf sf doctrine:schema:validate
+        # Az --unbuffered néhány container-ben hibát ad, szóval lehet, hogy nem kell
+        - wf php {{ sf_bin_dir }}/phpmd src xml phpmd.xml | sed --unbuffered
+             -e 's:<file name=\("[^>]*"\)>:<file name=\o033[1;36m\1\o033[0;39m>:g'
+             -e 's:\(beginline\|endline\|rule\)=\("[^"]*"\):\o033[1;31m\1\o033[0;39m=\o033[33m\2\o033[39m:g'
+
+    dep:
+        - wf php-exec {{ sf_bin_dir }}/dep ${@}
+
+{% if is_ez %}
+    # Csak EZ!
+#    kaliop_type_gen:
+#        - if [ "${1}" == "" ]; then echo "Meg kell adnod az identifier-t!"; else wf sf kaliop:migration:generate --type=content_type --match-type=identifier --match-value=${1} --mode=create -n AppBundle content_type_${1}; fi
+{% endif %}
+
+# The configs of recipes
+# List all available recipes: `wf --config-dump --only-recipes`
+recipes:
+    # Symfony {{ sf_version }} recipe
+    # List all available options: `wf --config-dump --recipe=symfony{{ sf_version }}`
+    symfony{{ sf_version }}:
+{% if is_ez %}
+        version: ez{{ sf_version >= 3 ? '2' : '1' }}
+{% endif %}
+        # Symfony environment.
+        env:     dev
+        server:
+            # You can switch on and off the xdebug.
+            xdebug:         false
+            timezone:       Europe/Budapest
+            timeout:        60
+            max_post_size:  10M
+
+    # Include a MySQL service
+    # List all available options: `wf --config-dump --recipe=mysql`
+    mysql:
+        # Docker image tag
+        version:   "5.7"
+        # Database name
+        database:  "symfony"
+        # The root password.
+        password:  "root"
+        # If you want to enable this container from outside set the port number.
+#        port:      3306
+
+    # List all available options: `wf --config-dump --recipe=git_flow`
+    git_flow:             []
+
+    # You can enable the nginx-reverse-proxy.
+    # List all available options: `wf --config-dump --recipe=nginx_reverse_proxy`
+    nginx_reverse_proxy:
+        # You have to set the service and its host and port settings.
+        settings:
+            web: ~
+
+    # Here you can fix the container user ID and group ID, for example if you want to share some files, and you'd love
+    # the correct file permissions.
+    # List all available options: `wf --config-dump --recipe=user_fix`
+    user_fix:
+        services:
+            # docker compose service name
+            mysql:
+                # container username
+                user: mysql
+                # container group name
+                group: mysql
+                # original entrypoint
+                entrypoint: docker-entrypoint.sh mysqld

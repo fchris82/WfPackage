@@ -1,0 +1,16 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+{% for service in services %}
+    {{ service }}:
+        labels:
+            com.wf.basedirectory: ${BASE_DIRECTORY}
+        networks:
+            - default
+{% endfor %}
+
+networks:
+    default:
+        driver: bridge
+        labels:
+            com.wf.basedirectory: ${BASE_DIRECTORY}

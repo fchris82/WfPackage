@@ -1,0 +1,27 @@
+version: "2.0.0"
+name:    "{{ project_name }}"
+
+# The configs of recipes
+# List all available recipes: `wf --config-dump --only-recipes`
+recipes:
+    # Php recipe
+    php:
+        # Docker image tag. If you want to change image too, use the image option.
+        version:              php{{ php_version }}
+
+        # Server configuration
+        server:
+            # You can switch on and off the xdebug.
+            xdebug:               false
+            xdebug_ide_server_name: Docker
+
+            # You can switch on and off the PHP error log. (default is ON!)
+            error_log:            true
+            # You can set the nginx client_max_body_size and php max_post and max_file_upload.
+            max_post_size:        10M
+            # You can set the nginx fastcgi_read_timeout and php max_execution_time.
+            timeout:              '30'
+            # You can set the server timezone. The default is your/host machine system setting from the /etc/timezone file.
+            timezone:             Europe/Budapest
+            # You can set the server locale. The default is your/host machine system setting from the $_ENV[LOCALE]
+            locale:               hu_HU

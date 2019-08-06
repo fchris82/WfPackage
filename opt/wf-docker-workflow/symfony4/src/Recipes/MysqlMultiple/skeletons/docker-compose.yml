@@ -1,0 +1,10 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+{% for name, db_config in databases %}
+    {{ name }}:
+        image: mysql:{{ db_config.version }}
+        environment:
+            MYSQL_ROOT_PASSWORD: {{ db_config.password }}
+            MYSQL_DATABASE: {{ db_config.database }}
+{% endfor %}

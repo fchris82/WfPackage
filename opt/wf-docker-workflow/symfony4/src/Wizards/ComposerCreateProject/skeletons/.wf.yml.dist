@@ -1,0 +1,17 @@
+version: "2.0.0"
+name:    "tmp"
+
+# The configs of recipes
+# List all available recipes: `wf --config-dump --only-recipes`
+recipes:
+    # Symfony {{ sf_version }} recipe
+    # List all available options: `wf --config-dump --recipe=symfony{{ sf_version }}`
+    symfony{{ sf_version }}:
+        # Symfony environment.
+        env:     dev
+        server:
+            # You can switch on and off the xdebug.
+            xdebug:         false
+            timezone:       Europe/Budapest
+            timeout:        60
+            max_post_size:  10M

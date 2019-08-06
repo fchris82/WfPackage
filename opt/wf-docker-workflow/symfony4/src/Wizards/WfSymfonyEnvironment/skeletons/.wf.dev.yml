@@ -1,0 +1,27 @@
+docker_compose:
+    # Docker Compose yaml configuration. You mustn't use the version parameter, it will be automatically.
+    extension:
+        # Example:
+        services:
+            yarn:
+                image: node-alpine-yarn
+                build:
+                    context: '%wf.project_path%/.docker/yarn'
+                    dockerfile: Dockerfile
+                volumes:
+                    - '%wf.project_path%:/usr/src/app'
+                # A package.json fájl, "scripts" részéből kell kiválasztanod a megfelelő kulcsot
+                command: yarn run watch
+                user: ${DOCKER_USER}
+
+# You can add extra commands.
+commands:
+    install:
+        - wf composer install
+        - wf dbreload ${1}
+        - wf run --rm yarn yarn
+        - wf run --rm yarn yarn build
+        - echo "<info>✔ Now you can use the project!</info>"
+
+    yarn:
+        - wf run --rm -e HOME="/tmp" yarn yarn ${@}

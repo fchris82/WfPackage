@@ -1,0 +1,7 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+    {{ recipe }}:
+        image: mailhog/mailhog:latest
+        environment:
+            MH_HOSTNAME: {{ recipe }}

@@ -1,0 +1,142 @@
+define PROJECT_INFO
+\033[1mWorkflow Version:\033[0m  \033[1;32m$(VERSION)\033[0m
+
+Docker
+======
+
+    Basename:      \033[32m$(DOCKER_BASENAME)\033[0m
+    Config files:  \033[33m$(foreach file,$(DOCKER_CONFIG_FILES),$(file)\n                  )\033[0m
+    Data dir:      \033[33m$(DOCKER_DATA_DIR)\033[0m
+
+    Hosts:         $(foreach host,$(DOCKER_HTTP_HOST),\033[34;1mhttp://$(firstword $(subst :, ,$(host)))\033[0m | \033[3m$(lastword $(subst :, ,$(host)))\033[0m\n                  )
+
+    Database URL:  \033[33m$(DB_URL)\033[0m
+
+    Configured docker environments:
+    \033[33m$(DOCKER_ENVIRONMENTS)\033[0m
+
+About log
+---------
+
+    You can use the \033[33mwf logs\033[0m that exactly a \033[33mdocker-compose log\033[0m alias:
+
+    # List full log of container
+    \033[33mwf logs \033[0m<name>
+    # List last 5 rows
+    \033[33mwf logs --tail 5 \033[0m<name>
+    # List last 5 rows with timestamp information
+    \033[33mwf logs -t --tail 5 \033[0m<name>
+    # List last 5 rows with timestamp into file:
+    \033[33mwf logs -t --no-color --tail 5 \033[0m<name> \033[33m>\033[0m log.txt
+
+    You can use the \033[33mdocker logs\033[0m command with \033[33m--since\033[0m and \033[33m--until\033[0m options:
+    \033[33mdocker logs --since \033[37m20m\033[33m --until \033[37m10m\033[0m xxxxxxxxxxxxx_engine_1
+endef
+export PROJECT_INFO
+
+# DOCKER! Nem docker-compose! DB import-export esetén fontos, mert csak azzal működik.
+define DOCKER_EXEC
+docker exec -i $$($(CMD_DOCKER_BASE) ps -q $(1)) $(2)
+endef
+
+.PHONY: info
+info::
+	@echo -e "$$PROJECT_INFO"
+	@echo -e "\nDocker compose command base:"
+	@echo -e "============================"
+	@echo -e ""
+	@RESTORE="\\\033[0m"; \
+		ENV_NAME="\\\033[33m"; \
+		ENV_VALUE="\\\033[37m"; \
+		CMD="\\\033[1;91m"; \
+		PARAMETER_NAME="\\\033[94m"; \
+		PARAMETER_VALUE="\\\033[92m"; \
+		echo -e $$(echo -e "$(CMD_DOCKER_BASE)" \
+			| sed -e "s/\([^= ]*\)=\([^ ]*\)/$${ENV_NAME}\\1$${RESTORE}=$${ENV_VALUE}\\2$${RESTORE}/g" \
+			| sed -e "s/docker-compose/$${CMD}docker-compose$${RESTORE}/" \
+			| sed -e "s/\(\B--*[a-zA-Z0-9\-]*\) \([^ ]*\)/$${PARAMETER_NAME}\\1$${RESTORE} $${PARAMETER_VALUE}\\2$${RESTORE}/g")
+
+# List all targets
+.PHONY: list
+list:
+	$(CMD_MAKE) -p | awk -F':' '/^[a-zA-Z0-9][^$$#\/       =]*:([^=]|$$)/ {split($$1,A,/ /);for(i in A)print A[i]}' | grep -v '__$$' | sort -u
+
+.PHONY: restart
+restart: down up
+
+.PHONY: __validate_args_no_empty
+__validate_args_no_empty:
+    ifeq (,$(ARGS))
+		@echo -e "\n\033[31m❌ You can't call this method without argument!\033[0m"
+		exit 1
+    endif
+
+# DOCKER COMMANDS
+.PHONY: docker-compose
+docker-compose:
+	$(CMD_DOCKER_BASE) $(ARGS)
+
+.PHONY: __docker_up
+__docker_up:
+	if [ "$$(docker ps -q --filter "label=com.wf.basedirectory=$(PROJECT_WORKING_DIRECTORY)" | wc -l)" -eq "0" ]; then \
+		$(CMD_DOCKER_BASE) up -d; \
+	else \
+		echo -e "\033[1;32mContainers has started...\033[0m"; \
+		docker ps -a --filter "label=com.wf.basedirectory=$(PROJECT_WORKING_DIRECTORY)" --format "table {{.Names}}\t{{.Status}}"; \
+	fi
+
+# If something changes in yml files, then the `docker-compose down` maybe won't down all containers and networks.
+# This is why we use labels to down!
+.PHONY: __docker_down
+__docker_down: DOCKER_CONTAINERS := $$(docker ps -a --format "{{.Names}}" --filter "label=com.wf.basedirectory=$(PROJECT_WORKING_DIRECTORY)")
+__docker_down: DOCKER_NETWORKS := $$(docker network ls --format "{{.Name}}" --filter "label=com.wf.basedirectory=$(PROJECT_WORKING_DIRECTORY)")
+__docker_down:
+	@echo -e "\033[1;32mStop and remove containers by label...\033[0m"
+	if [ ! -z "$(DOCKER_CONTAINERS)" ]; then docker stop $(DOCKER_CONTAINERS); docker rm $(DOCKER_CONTAINERS); fi
+	@echo -e "\033[1;32mRemove networks by label...\033[0m"
+	if [ ! -z "$(DOCKER_NETWORKS)" ]; then docker network rm $(DOCKER_NETWORKS); fi
+	@echo -e "\033[1;32mRemove remainders...\033[0m"
+	$(CMD_DOCKER_BASE) down
+
+# $(ARGS) : a docker-compose container neve kell nekünk
+.PHONY: __docker_exec
+__docker_exec: __validate_args_no_empty
+	$(CMD_DOCKER_EXEC) --user $(DOCKER_USER) $(ARGS)
+
+# Like __docker_sudo_run + -u
+.PHONY: __docker_run
+__docker_run: __validate_args_no_empty
+	$(CMD_DOCKER_BASE) run -u $(DOCKER_USER) -e DOCKER_USER=$(DOCKER_USER) -e DOCKER_RUN=1 $(ARGS)
+
+# Like __docker_run without -u
+.PHONY: __docker_sudo_run
+__docker_sudo_run: __validate_args_no_empty
+	$(CMD_DOCKER_BASE) run -e DOCKER_USER=$(DOCKER_USER) -e DOCKER_RUN=1 $(ARGS)
+
+.PHONY: __docker_logs
+__docker_logs: __validate_args_no_empty
+	$(CMD_DOCKER_BASE) logs $(ARGS)
+
+.PHONY: __docker_enter
+__docker_enter: CONTAINER := $(if $(ARGS),$(ARGS) /bin/bash,$(DOCKER_CLI_NAME) $(DOCKER_SHELL))
+__docker_enter: up
+	$(CMD_DOCKER_EXEC) --user $(DOCKER_USER) $(CONTAINER)
+
+.PHONY: __docker_debug_enter
+__docker_debug_enter: CONTAINER := $(if $(ARGS),$(ARGS),$(DOCKER_CLI_NAME))
+__docker_debug_enter: up
+	$(CMD_DOCKER_EXEC) $(CONTAINER) /bin/bash
+
+.PHONY: __docker_rebuild
+__docker_rebuild: DOCKER_USER_CONFIG_FILES := $(DOCKER_BUILD_CONFIG_FILES)
+__docker_rebuild: CONTAINER := $(if $(ARGS),$(ARGS),$(DOCKER_CLI_NAME))
+__docker_rebuild: down
+	$(CMD_DOCKER_BASE) build --no-cache --pull $(CONTAINER)
+
+.PHONY: __docker_ps
+__docker_ps:
+	$(CMD_DOCKER_BASE) ps $(ARGS)
+
+.PHONY: __docker_docker-conig
+__docker_docker-config:
+	$(CMD_DOCKER_BASE) config

@@ -1,0 +1,8 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+    {{ names.engine }}:
+        volumes:
+            - "${LOCAL_USER_HOME}:${LOCAL_USER_HOME}"
+            # User SSH keys
+            - "${LOCAL_USER_HOME}/.ssh:${LOCAL_USER_HOME}/.ssh:ro"

@@ -1,0 +1,9 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+    {{ recipe }}:
+        environment:
+            VIRTUAL_HOST: {{ nginx_reverse_proxy_host }}
+            VIRTUAL_PORT: 8025
+        networks:
+            - reverse-proxy

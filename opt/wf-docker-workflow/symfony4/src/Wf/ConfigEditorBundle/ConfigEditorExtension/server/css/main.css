@@ -1,0 +1,123 @@
+body {
+    overflow: hidden;
+}
+
+#container {
+    margin: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#sidebar {
+    margin: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 80%;
+    padding: 10px;
+    overflow: auto;
+}
+
+#editors {
+    margin: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 20%;
+    right: 0;
+    background: url(/images/code.png) center center no-repeat;
+}
+
+.ace_editor {
+    margin: 0;
+    position: absolute;
+    top: 40px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+#buttons {
+    margin: 5px;
+}
+
+#buttons button.disabled {
+    opacity: 0.3;
+}
+
+#help {
+    position: absolute;
+    right: 20px;
+    top: 56px;
+    bottom: 10px;
+    padding: 10px;
+    display: none;
+    background: #fff;
+    opacity: 0.6;
+    max-width: 40%;
+    overflow: auto;
+}
+
+#help:hover {
+    opacity: 1;
+    max-width: none;
+}
+
+#help pre {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+#help:hover pre {
+    white-space: pre;
+}
+
+#help .comment {
+    color: darkorange;
+}
+
+#help .info {
+    color: green;
+}
+
+#help .key {
+    color: #548dbf;
+    font-weight: bold;
+}
+
+#help .prototype {
+    color: #d400d4;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.nav-tabs li.unsaved span.file:after {
+    content: ' *';
+    font-weight: bold;
+}
+
+.nav-tabs > li .close {
+    margin: -2px 0 0 10px;
+    font-size: 18px;
+}
+
+UL.jqueryFileTree A {
+    color: inherit;
+}
+
+UL.jqueryFileTree LI.file.wf {
+    background: url('/images/wf-yaml.png') left top no-repeat;
+}
+UL.jqueryFileTree LI.file.wf a {
+    color: rgb(6, 150, 14);
+}

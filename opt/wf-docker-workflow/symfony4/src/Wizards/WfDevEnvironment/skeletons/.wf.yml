@@ -1,0 +1,6 @@
+version: "2.0.0"
+name:    "{{ project_name }}"
+
+# The configs of recipes
+recipes:
+# List all available recipes: `wf --config-dump --only-recipes`

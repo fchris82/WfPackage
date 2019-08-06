@@ -1,0 +1,6 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+    mysql:
+        volumes:
+            - "${DOCKER_DATA_DIR}/mysql:/var/lib/mysql"

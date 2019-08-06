@@ -1,0 +1,6 @@
+twig:
+    paths: []
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+    # We generate files, so we don't need it. It cause just problems.
+    autoescape: false

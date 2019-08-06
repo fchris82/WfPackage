@@ -1,0 +1,1 @@
+{{ available_placeholders | json_encode(constant('JSON_PRETTY_PRINT')) }}

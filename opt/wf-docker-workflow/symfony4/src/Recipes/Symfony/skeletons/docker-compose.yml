@@ -1,0 +1,50 @@
+version: "{{ config.docker_compose.version }}"
+
+{% set pd = (project_dir != '.' ? project_dir : '') %}
+services:
+    {{ names.web }}:
+        image: nginx:latest
+        links:
+            - {{ names.engine }}:php
+        volumes:
+            - "${BASE_DIRECTORY}/{{ pd|default('${PROJECT_DIR_NAME}') }}:${DOCKER_DOC_ROOT}{{ pd ? '/' ~ pd : '' }}"
+            - "{{ recipe_path }}/etc/vhost.conf:/etc/nginx/conf.d/default.conf:ro"
+            - "{{ recipe_path }}/etc/.htpasswd:/etc/nginx/.htpasswd:ro"
+{% if nginx.include_file %}
+            - "{{ nginx.include_file }}:ro"
+{% endif %}
+        working_dir: {{ project_path }}{{ pd ? '/' ~ pd : '' }}
+        command: {{ server.nginx_debug ? 'nginx-debug' : 'nginx' }} -g 'daemon off;'
+
+    {{ names.engine }}:
+        image:  fchris82/symfony:{{ version }}
+        environment:
+            CI: ${CI}
+            DOCKER_RUN: ${DOCKER_RUN}
+            COMPOSER_MEMORY_LIMIT: -1
+            DOCKER_USER: ${DOCKER_USER}
+            WF_DEBUG: ${WF_DEBUG}
+            LOCAL_USER_ID: ${LOCAL_USER_ID}
+            LOCAL_USER_NAME: ${LOCAL_USER_NAME}
+            LOCAL_USER_HOME: ${LOCAL_USER_HOME}
+            COMPOSER_HOME: ${COMPOSER_HOME}
+            LOCALE: {{ server.locale }}
+            WWW_DATA_UID: ${WWW_DATA_UID}
+            WWW_DATA_GID: ${WWW_DATA_GID}
+            DATABASE_URL: ${DATABASE_URL}
+            TIMEZONE:                     {{ server.timezone }}
+            PHP_MAX_EXECUTION_TIME:       {{ server.timeout }}
+            PHP_MEMORY_LIMIT:             128M
+            PHP_UPLOAD_MAX_FILESIZE:      {{ server.max_post_size }}
+            PHP_MAX_FILE_UPLOADS:         10
+            PHP_POST_MAX_SIZE:            {{ server.max_post_size }}
+            PHP_IDE_CONFIG: "serverName={{ environment.XDEBUG_IDE_SERVER_NAME | default(server.xdebug_ide_server_name) }}"
+            WF_XDEBUG_ENABLED: {{ server.xdebug ? '1' : '0' }}
+            XDEBUG_ENABLED: {{ server.xdebug ? '1' : '0' }}
+            ERROR_LOG_ENABLED: {{ server.error_log ? '1' : '0' }}
+        working_dir: {{ project_path }}{{ pd ? '/' ~ pd : '' }}
+        volumes:
+            # Full project files
+            - "${BASE_DIRECTORY}{{ pd ? '/' ~ pd : '' }}:${DOCKER_DOC_ROOT}{{ pd ? '/' ~ pd : '' }}"
+        # It is important to avoid "Exit 0"
+        tty: true

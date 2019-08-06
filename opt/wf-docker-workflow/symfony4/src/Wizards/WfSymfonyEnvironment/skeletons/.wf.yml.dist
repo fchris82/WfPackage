@@ -1,0 +1,33 @@
+imports:
+    - .wf.base.yml
+    # If you use for example yarn for developing, you should put it only to .wf.dev.yml file, and uncomment the next 2 lines.
+#    - .wf.dev.yml
+
+{% if sf_version > 2 %}
+docker_compose:
+    extension:
+        services:
+            engine:
+                env_file:
+                    - '%wf.project_path%/.env'
+{% endif %}
+
+# Config the docker compose data.
+#docker_compose:
+#    # Docker Compose yaml configuration. You mustn't use the version parameter, it will be automatically.
+#    extension:
+#        services:
+#            elasticsearch:
+#                volumes:
+#                    - "%wf.target_directory%/.data/elasticsearch:/usr/share/elasticsearch/data"
+#
+#recipes:
+#    # List all available options: `wf --config-dump --recipe=symfony2`
+#    symfony{{ sf_version }}:
+#        env:     dev
+#        server:
+#            # You can switch on and off the xdebug.
+#            xdebug:         false
+#    # List all available options: `wf --config-dump --recipe=mysql`
+#    mysql:
+#        port:      3306

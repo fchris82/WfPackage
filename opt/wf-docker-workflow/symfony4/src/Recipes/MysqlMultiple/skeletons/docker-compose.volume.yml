@@ -1,0 +1,10 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+{% for name, db_config in databases %}
+{% if db_config.local_volume %}
+    {{ name }}:
+        volumes:
+            - "${DOCKER_DATA_DIR}/{{ name }}:/var/lib/mysql"
+{% endif %}
+{% endfor %}

@@ -1,0 +1,56 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services; this also means
+                            # fetching services directly from the container via $container->get() won't work.
+                            # The best practice is to be explicit about your dependencies anyway.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude:
+            - '../src/{Entity,Migrations,Tests,Kernel.php}'
+            - '../src/{Recipes,Wizards}/*/{skeletons,template}'
+            - '../src/*/*/Tests'
+            - '../src/Wf/ConfigEditorBundle/ConfigEditorExtension/server'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Here you can change the pre and post system recipes and change behaviours.
+    # ------------------------------------------------------------------------------------------------------------------
+    # PREbuild
+    App\Wf\BaseSystemRecipesBundle\SystemRecipes\Base\BaseRecipe:
+        tags:
+            - { name: 'kernel.event_listener', event: 'wf.configuration.event.register.prebuild', priority: 999 }
+
+    # POSTbuild
+    App\Wf\BaseSystemRecipesBundle\SystemRecipes\Commands\CommandsRecipe:
+        tags:
+            - { name: 'kernel.event_listener', event: 'wf.configuration.event.register.postbuild', priority: 999 }
+
+    App\Wf\BaseSystemRecipesBundle\SystemRecipes\DockerComposeExtension\DockerComposeExtensionRecipe:
+        tags:
+            - { name: 'kernel.event_listener', event: 'wf.configuration.event.register.postbuild', priority: 900 }
+
+    App\Wf\BaseSystemRecipesBundle\SystemRecipes\MakefileExtension\MakefileExtensionRecipe:
+        tags:
+            - { name: 'kernel.event_listener', event: 'wf.configuration.event.register.postbuild', priority: 900 }
+
+    App\Wf\BaseSystemRecipesBundle\SystemRecipes\PostBase\PostBaseRecipe:
+        tags:
+            - { name: 'kernel.event_listener', event: 'wf.configuration.event.register.postbuild', priority: 0 }
+
+    App\Wf\ConfigEditorBundle\ConfigEditorExtension\ConfigEditorExtensionRecipe:
+        tags:
+            - { name: 'kernel.event_listener', event: 'wf.configuration.event.register.postbuild', priority: -99 }
+
+    Wf\DockerWorkflowBundle\Recipes\CreateBaseRecipe\Recipe:
+        tags:
+            - { name: 'kernel.event_listener', event: 'wf.configuration.event.register.postbuild', priority: -999 }

@@ -1,0 +1,16 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+{% for service, data in settings %}
+    {{ service }}:
+        environment:
+            VIRTUAL_HOST: {{ data.host }}
+            VIRTUAL_PORT: {{ data.port }}
+        networks:
+            - reverse-proxy
+{% endfor %}
+
+networks:
+    reverse-proxy:
+        external:
+            name: {{ network_name }}

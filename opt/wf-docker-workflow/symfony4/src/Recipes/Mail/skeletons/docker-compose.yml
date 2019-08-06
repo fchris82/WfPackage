@@ -1,0 +1,5 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+    mail:
+        image: tianon/exim4:latest

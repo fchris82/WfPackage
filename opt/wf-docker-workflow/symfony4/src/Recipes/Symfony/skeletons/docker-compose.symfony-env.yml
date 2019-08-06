@@ -1,0 +1,12 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+    {{ names.engine }}:
+        environment:
+            SYMFONY_ENV:                  {{ env }}
+            SYMFONY_DEBUG:                ~
+            SYMFONY_CLASSLOADER_FILE:     ~
+            SYMFONY_HTTP_CACHE:           ~
+            SYMFONY_HTTP_CACHE_CLASS:     ~
+            SYMFONY_TRUSTED_PROXIES:      ~
+            SYMFONY_DEPRECATIONS_HELPER:  ~

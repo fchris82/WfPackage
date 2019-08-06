@@ -3,7 +3,7 @@
 #set -x
 
 # Debug! Host target, so you can't use the `source` solution, you have to copy the _debug.sh file content directly.
-# << docker-workflow-package/opt/wf-docker-workflow/lib/_debug.sh !!!
+# << packages/wf-docker-workflow/opt/wf-docker-workflow/lib/_debug.sh !!!
 if [ ${WF_DEBUG:-0} -ge 1 ]; then
     [[ -f /.dockerenv ]] && echo -e "\033[1mDocker: \033[33m${WF_DOCKER_HOST_CHAIN}$(hostname)\033[0m"
     echo -e "\033[1mDEBUG\033[33m $(realpath "$0")\033[0m"
@@ -26,13 +26,13 @@ if [ "$1" == "--develop" ]; then
     done
     DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
     WF_DEVELOP_PATH="$(realpath ${DIR}/../../../../..)"
-    DOCKER_DEVELOP_PATH_VOLUME="-v ${WF_DEVELOP_PATH}/docker-workflow-package/opt/wf-docker-workflow:/opt/wf-docker-workflow"
+    DOCKER_DEVELOP_PATH_VOLUME="-v ${WF_DEVELOP_PATH}/packages/wf-docker-workflow/opt/wf-docker-workflow:/opt/wf-docker-workflow"
 
     # Change docker image, if it needs. Maybe you should build first with make command:
     #
     #  $ make -s rebuild_wf build_docker
     #
-    GIT_BRANCH=$(cd ${WF_DEVELOP_PATH}/docker-workflow-package/opt/wf-docker-workflow && git rev-parse --abbrev-ref HEAD)
+    GIT_BRANCH=$(cd ${WF_DEVELOP_PATH}/packages/wf-docker-workflow/opt/wf-docker-workflow && git rev-parse --abbrev-ref HEAD)
     case $GIT_BRANCH in
         master|HEAD)
             # Do nothing

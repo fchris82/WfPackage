@@ -22,3 +22,5 @@
 
 # PHP-Unit coverage directory: make phpunit-coverage
 /phpcoverage
+# Composer lock
+composer.lock

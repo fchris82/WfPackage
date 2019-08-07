@@ -16,7 +16,7 @@ ENV SYMFONY_PATH=/opt/wf-docker-workflow/symfony4
 ENV SYMFONY_CONSOLE=$SYMFONY_PATH/bin/console
 
 # We want to get an error if it is missing!
-COPY tmp/opt/wf-docker-workflow /opt/wf-docker-workflow
+COPY .tmp/opt/wf-docker-workflow /opt/wf-docker-workflow
 
 # Docker compose needs: https://docs.docker.com/compose/install/
 RUN set -x && apk update && \

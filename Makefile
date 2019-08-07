@@ -44,6 +44,7 @@ init-developing:
 
 # Upgrade the version number.
 .PHONY: __versionupgrade_wf
+__versionupgrade_wf: MAKEFILE_PATH := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 __versionupgrade_wf:
     # We automatically change in master and develop branch!
     # Don't use variable in ifeq! The $(shell) is only way!
@@ -55,13 +56,13 @@ __versionupgrade_wf:
     ifeq (,$(KEEPVERSION))
         ifeq (,$(VERSION))
             # Original Version + New Version
-			@if [ -z "$(nochange)" ]; then ov=$$(grep WF_VERSION Dockerfile | egrep -o '[0-9\.]*'); \
+			@if [ -z "$(nochange)" ]; then ov=$$(grep WF_VERSION $(MAKEFILE_PATH)/Dockerfile | egrep -o '[0-9\.]*'); \
 				nv=$$(echo "$${ov%.*}.$$(($${ov##*.}+1))"); \
-				sed -i -e "s/ENV WF_VERSION=*$${ov}/ENV WF_VERSION=$${nv}/" Dockerfile; \
+				sed -i -e "s/ENV WF_VERSION=*$${ov}/ENV WF_VERSION=$${nv}/" $(MAKEFILE_PATH)/Dockerfile; \
 				echo "Version: $${nv}"; \
 			fi
         else
-			sed -i -e "s/ENV WF_VERSION=*$${ov}/ENV WF_VERSION=$(VERSION)/" Dockerfile; \
+			sed -i -e "s/ENV WF_VERSION=*$${ov}/ENV WF_VERSION=$(VERSION)/" $(MAKEFILE_PATH)/Dockerfile; \
 				echo "Version: $(VERSION)"
         endif
     endif
@@ -99,8 +100,9 @@ __get_image_tag:
 
 # Create a docker image
 .PHONY: __build_docker
+__build_docker: MAKEFILE_PATH := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 __build_docker: __versionupgrade_wf __get_image_tag
-	docker build --no-cache -t $(IMAGE) .
+	docker build --no-cache -t $(IMAGE) $(MAKEFILE_PATH)
 
 # Create a docker image
 .PHONY: build_docker
@@ -108,8 +110,9 @@ build_docker: __build_rsync __build_docker __build_cleanup
 
 # Create a docker image with cache
 .PHONY: fast_build_docker
+fast_build_docker: MAKEFILE_PATH := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 fast_build_docker: __get_image_tag
-	docker build -t $(IMAGE) .
+	docker build -t $(IMAGE) $(MAKEFILE_PATH)
 
 # Push docker image
 .PHONY: push_docker

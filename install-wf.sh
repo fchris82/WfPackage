@@ -61,8 +61,8 @@ else
 fi
 
 # If we want to use the local and fresh files
-if [ -f ${DIR}/packages/wf-docker-workflow/opt/wf-docker-workflow/host/copy_binaries_to_host.sh ]; then
-    ${DIR}/packages/wf-docker-workflow/opt/wf-docker-workflow/host/copy_binaries_to_host.sh
+if [ -f ${DIR}/packages/wf-docker-workflow/src/opt/wf-docker-workflow/host/copy_binaries_to_host.sh ]; then
+    ${DIR}/packages/wf-docker-workflow/src/opt/wf-docker-workflow/host/copy_binaries_to_host.sh
 # If the docker is available
 elif [ -S /var/run/docker.sock ]; then
     # Copy files from image to host. YOU CAN'T USE docker cp COMMAND, because it doesn't work with image name, it works with containers!

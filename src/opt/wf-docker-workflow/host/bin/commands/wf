@@ -2,7 +2,7 @@
 # This is a "symlink to a docker" call.
 
 # Debug! Host target, so you can't use the `source` solution, you have to copy the _debug.sh file content directly.
-# << packages/wf-docker-workflow/opt/wf-docker-workflow/lib/_debug.sh !!!
+# << packages/wf-docker-workflow/src/opt/wf-docker-workflow/lib/_debug.sh !!!
 if [ ${WF_DEBUG:-0} -ge 1 ]; then
     [[ -f /.dockerenv ]] && echo -e "\033[1mDocker: \033[33m${WF_DOCKER_HOST_CHAIN}\033[0m"
     echo -e "\033[1mDEBUG\033[33m $(realpath "$0")\033[0m"
@@ -20,7 +20,7 @@ WF_PROGRAM_REPOSITORY=${WF_PROGRAM_REPOSITORY:-git@github.com:fchris82/WfDockerW
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #
-# YOU SHOULDN'T EDIT THIS FILE! If you want to extend the `wf` command, edit the `packages/wf-docker-workflow/opt/wf-docker-workflow/workflow.sh`
+# YOU SHOULDN'T EDIT THIS FILE! If you want to extend the `wf` command, edit the `packages/wf-docker-workflow/src/opt/wf-docker-workflow/workflow.sh`
 # file!
 # You have to use this file, when you want to extend `wf` command that needs to use "host" instead of "docker container".
 # Eg: the `--update` needs to use host.

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Debug! Host target, so you can't use the `source` solution, you have to copy the _debug.sh file content directly.
-# << packages/wf-docker-workflow/opt/wf-docker-workflow/lib/_debug.sh !!!
+# << packages/wf-docker-workflow/src/opt/wf-docker-workflow/lib/_debug.sh !!!
 if [ ${WF_DEBUG:-0} -ge 1 ]; then
     [[ -f /.dockerenv ]] && echo -e "\033[1mDocker: \033[33m${WF_DOCKER_HOST_CHAIN}\033[0m"
     echo -e "\033[1mDEBUG\033[33m $(realpath "$0")\033[0m"

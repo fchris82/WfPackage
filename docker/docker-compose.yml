@@ -1,0 +1,20 @@
+version: '2'
+
+services:
+    cli:
+        image: fchris82/wf
+        build:
+            context: ../.
+        environment:
+            - HOME=${LOCAL_USER_HOME}
+            - ORIGINAL_PWD=$PWD
+            - APP_ENV=${APP_ENV}
+            - XDEBUG_ENABLED=${XDEBUG_ENABLED}
+            - LOCAL_USER_ID=${LOCAL_USER_ID}
+            - LOCAL_USER_NAME=${LOCAL_USER_NAME}
+            - LOCAL_USER_HOME=${LOCAL_USER_HOME}
+            - USER_GROUP=${USER_GROUP}
+        volumes:
+            - "~/:${LOCAL_USER_HOME}:ro"
+            - "/var/run/docker.sock:/var/run/docker.sock"
+        working_dir: ${LOCAL_USER_HOME}

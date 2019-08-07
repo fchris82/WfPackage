@@ -4,22 +4,22 @@
     "require": {
         "php": "^7.3",
         "ext-iconv": "*",
-        "symfony/console": "^4.0",
-        "symfony/dependency-injection": "^4.0",
-        "symfony/finder": "^4.0",
+        "symfony/console": "^4.3",
+        "symfony/dependency-injection": "^4.3",
+        "symfony/finder": "^4.3",
         "symfony/flex": "^1.0",
-        "symfony/framework-bundle": "^4.0",
+        "symfony/framework-bundle": "^4.3",
         "symfony/lts": "^4@dev",
-        "symfony/twig-bundle": "^4.0",
-        "symfony/yaml": "^4.0",
+        "symfony/twig-bundle": "^4.3",
+        "symfony/yaml": "^4.3",
         "wf-chris/docker-workflow-bundle": "^1.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.13",
-        "mockery/mockery": "^1.1",
-        "phpunit/phpunit": "^8.2",
-        "symfony/dotenv": "^4.0",
-        "symfony/phpunit-bridge": "^4.0",
+        "friendsofphp/php-cs-fixer": "^2.15",
+        "mockery/mockery": "^1.2",
+        "phpunit/phpunit": "^8.3",
+        "symfony/dotenv": "^4.3",
+        "symfony/phpunit-bridge": "^4.3",
         "symfony/test-pack": "^1.0"
     },
     "config": {

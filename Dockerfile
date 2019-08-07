@@ -86,7 +86,7 @@ RUN APP_ENV=prod WF_SYMFONY_ENV=prod /opt/wf-docker-workflow/workflow.sh --compo
     ln -sf /opt/wf-docker-workflow/wizard.sh /usr/local/bin/wizard && \
     ln -sf /opt/wf-docker-workflow/lib/wf-composer-require.sh /usr/local/bin/wf-composer-require
 
-COPY packages/wf-docker-workflow/docker /usr/local/bin/docker-entrypoint.sh
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

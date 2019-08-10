@@ -12,11 +12,6 @@ fi
 [[ ${WF_DEBUG:-0} -ge 2 ]] && set -x
 
 DOCKER_WORKFLOW_BASE_PATH=${DOCKER_WORKFLOW_BASE_PATH:-~/.wf-docker-workflow}
-# Load env config
-set -a
-[ -f ${DOCKER_WORKFLOW_BASE_PATH}/config/env ] && . ${DOCKER_WORKFLOW_BASE_PATH}/config/env
-set +a
-WF_PROGRAM_REPOSITORY=${WF_PROGRAM_REPOSITORY:-git@github.com:fchris82/WfDockerWorkflow.git}
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #
@@ -29,10 +24,27 @@ WF_PROGRAM_REPOSITORY=${WF_PROGRAM_REPOSITORY:-git@github.com:fchris82/WfDockerW
 case $1 in
     # !!! Don't extend here! Read above!
     -u|--update)
-        git archive --remote=${WF_PROGRAM_REPOSITORY} ${2:-HEAD} install-wf.sh | tar xO > /tmp/install-wf.sh
-        chmod +x /tmp/install-wf.sh
-        /tmp/install-wf.sh
-        rm /tmp/install-wf.sh
+        WF_UPDATER_METHOD=$(command -v wget || command -v curl || command -v git)
+        WF_INSTALLER_URL="https://raw.githubusercontent.com/fchris82/WfDockerWorkflow/master/install-wf.sh"
+
+        case ${WF_UPDATER_METHOD##*/} in
+            wget)
+                bash -c "$(wget $WF_INSTALLER_URL -O -)"
+            ;;
+            curl)
+                bash -c "$(curl -fsSL $WF_INSTALLER_URL)"
+            ;;
+            git)
+                git archive --remote=git@github.com:fchris82/WfDockerWorkflow.git ${2:-HEAD} install-wf.sh | tar xO > /tmp/install-wf.sh
+                chmod +x /tmp/install-wf.sh
+                /tmp/install-wf.sh
+                rm /tmp/install-wf.sh
+            ;;
+            *)
+                echo "You need at least one of them: wget, curl or git!"
+                exit 1
+            ;;
+        esac
         echo "Cleaning the cache..."
         ${DOCKER_WORKFLOW_BASE_PATH}/bin/workflow_runner.sh wf --clean-cache >/dev/null
     ;;

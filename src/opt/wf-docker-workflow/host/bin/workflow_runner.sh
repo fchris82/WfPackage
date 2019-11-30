@@ -162,6 +162,7 @@ fi
 
 # You should handle the `WF_DOCKER_HOST_CHAIN` as unique, because the quotes cause some problem if you want to use in an other variable!
 docker run ${TTY} \
+            --rm \
             ${DOCKER_COMPOSE_ENV} \
             -e WF_DOCKER_HOST_CHAIN="${WF_DOCKER_HOST_CHAIN}" \
             -w ${WORKDIR} \

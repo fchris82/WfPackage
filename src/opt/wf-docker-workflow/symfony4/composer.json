@@ -12,7 +12,7 @@
         "symfony/lts": "^4@dev",
         "symfony/twig-bundle": "^4.3",
         "symfony/yaml": "^4.3",
-        "wf-chris/docker-workflow-bundle": "^1.1.4"
+        "wf-chris/docker-workflow-bundle": "^1.1.5"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.15",

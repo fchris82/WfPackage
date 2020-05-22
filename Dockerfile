@@ -2,7 +2,7 @@
 FROM php:7.3-cli-alpine
 
 LABEL workflow-base=true
-ENV WF_VERSION=2.345
+ENV WF_VERSION=2.347
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8

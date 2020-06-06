@@ -118,7 +118,7 @@ fast_build_docker: __get_image_tag
 .PHONY: push_docker
 push_docker: USER_IS_LOGGED_IN := `cat ~/.docker/config.json | jq '.auths."https://index.docker.io/v1/"'`
 push_docker: __get_image_tag
-	if [ "$(USER_IS_LOGGED_IN)" = "null" ]; then \
+	if [ ! -f ~/.docker/config.json ] || [ "$(USER_IS_LOGGED_IN)" = "null" ]; then \
 		docker login; \
 	fi
 	docker push $(IMAGE)

@@ -20,8 +20,6 @@ if [ ! -z "${LOCAL_USER_NAME}" ]; then
     # USER
     USER_ID=${LOCAL_USER_ID:-9001}
     CURRENT_USER=$(id -u)
-    # default docker group name
-    DOCKER_GROUP_NAME='docker'
     if [ $USER_ID != 0 ] && [ "$USER_ID" != "$CURRENT_USER" ]; then
         # If the sock exist, we try to find the correct user group to can use docker
         if [ -S /var/run/docker.sock ]; then

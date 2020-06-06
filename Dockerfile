@@ -1,8 +1,8 @@
 # You can test the build with `docker run --rm -it php:7.3-alpine /bin/sh` command
-FROM php:7.3-cli-alpine
+FROM php:7.4-cli-alpine
 
 LABEL workflow-base=true
-ENV WF_VERSION=2.347
+ENV WF_VERSION=2.348
 
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US.UTF-8
@@ -58,8 +58,12 @@ RUN set -x && \
 
 # Required for docker-compose to find zlib.
 ENV LD_LIBRARY_PATH=/lib:/usr/lib
+# default docker group name
+ARG DOCKER_GROUP_NAME=docker
+ENV DOCKER_GROUP_NAME=docker
 
 RUN set -x && \
+    addgroup $DOCKER_GROUP_NAME && \
     apk add --no-cache -t .deps ca-certificates && \
     # Required dependencies.
     apk add --no-cache zlib libgcc && \

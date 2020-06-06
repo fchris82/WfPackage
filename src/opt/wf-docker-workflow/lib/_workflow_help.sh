@@ -29,7 +29,7 @@ ${BOLD}${WHITE}Only any project directory:${RESTORE}
 
 Eg: ${YELLOW}wf help${RESTORE}
 
-${BOLD}${WHITE}Developere options:${RESTORE}
+${BOLD}${WHITE}Developer options:${RESTORE}
         --composer-install          ${GREEN}"Composer install" in symfony directory!${RESTORE}
 EOM
 

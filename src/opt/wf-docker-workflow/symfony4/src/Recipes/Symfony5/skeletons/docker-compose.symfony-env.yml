@@ -1,0 +1,12 @@
+version: "{{ config.docker_compose.version }}"
+
+services:
+    {{ names.engine }}:
+        environment:
+            APP_ENV:                  {{ env }}
+            APP_DEBUG:                ~
+            APP_CLASSLOADER_FILE:     ~
+            APP_HTTP_CACHE:           ~
+            APP_HTTP_CACHE_CLASS:     ~
+            APP_TRUSTED_PROXIES:      ~
+            APP_DEPRECATIONS_HELPER:  ~
